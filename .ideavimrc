@@ -46,7 +46,7 @@ let mapleader = " "
 
 "" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
 "" Map \r to the Reformat Code action
-map \r <Action>(ReformatCode)
+map <leader>f <Action>(ReformatCode)
 
 "" Map <leader>d to start debug
 "map <leader>d <Action>(Debug)
@@ -60,7 +60,7 @@ nnoremap <A-p> :tabprev<CR>\
 
 " Refactoring
 map <leader>rn <Action>(RenameElement)
-map <leader>rr <Action>(Refactorings.QuickListPopupAction)
+map <leader>ra <Action>(Refactorings.QuickListPopupAction)
 " Not really the best mappings as you need to constantly perform the motion
 " however the c-w= seems useful.
 nmap <C-w>= <Action>(MaximizeEditorInSplit)
@@ -70,38 +70,42 @@ nmap <C-w><Right> <Action>(StretchSplitToRight)
 nmap <C-w><Up> <Action>(StretchSplitToTop)
 
 """ Navigation
-map <leader>wv <Action>(SplitVertically)
-map <leader>ws <Action>(SplitHorizontally)
 map <leader>wu <Action>(Unsplit)
-map <leader>wm <Action>(MoveEditorToOppositeTabGroup)
 
-""" code
+""" LSP Code like.
 nmap <leader>gd <Action>(GotoDeclaration)
 nmap <leader>gy <Action>(GotoTypeDeclaration)
-nmap <leader>gi <Action>(GotoImplementation)
-nmap <leader>gu <Action>(ShowUsages)
+nmap <leader>gI <Action>(GotoImplementation)
+nmap <leader>gr <Action>(ShowUsages)
+nmap <leader>ds <Action>(FileStructurePopup)
+" custom LSP-like
 nmap <leader>gt <Action>(GotoTest)
 nmap <leader>gf <Action>(Forward)
 nmap <leader>gb <Action>(Back)
-
+" a.k.a workspace symbols
+map <leader>ws <Action>(GotoSymbol)
 " Display options
 map <leader>dd <Action>(ToggleDistractionFreeMode)
 map <leader>dz <Action>(ToggleZenMode)
 map <leader>df <Action>(ToggleFullScreen)
 
 " File navigation
-map <leader>ff <Action>(GotoFile)
-map <leader>fr <Action>(RecentFiles)
-map <leader>fp <Action>(FindInPath)
+" Telescope like functionality. [S]earch
+map <leader>sf <Action>(GotoFile)
+map <leader>s. <Action>(RecentFiles)
+map <leader>sg <Action>(FindInPath)
+
 map <leader><leader> <Action>(RecentFiles)
-map <leader>fl <Action>(RecentLocations)
-map <leader>fs <Action>(GotoSymbol)
-map <leader>fc <Action>(GotoClass)
+map <leader>sl <Action>(RecentLocations)
+
+map <leader>sc <Action>(GotoClass)
 map <leader>fn <Action>(NewScratchFile)
 """ Jump between methods
 map [[ <Action>(MethodDown)
 map ]] <Action>(MethodUp)
+
 """ other
 map <leader>x :NERDTreeToggle<CR>
+nnoremap <leader>n :NERDTreeFocus<CR>
 map <leader>v <Action>(MoveTabRight)
 
