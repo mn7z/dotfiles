@@ -1,5 +1,5 @@
 " .ideavimrc is a configuration file for IdeaVim plugin. It uses
-"   the same commands as the original .vimrc configuration.
+" the same commands as the original .vimrc configuration.
 " You can find a list of commands here: https://jb.gg/h38q75
 " Find more examples here: https://jb.gg/share-ideavimrc
 
@@ -28,8 +28,13 @@ set clipboard+=unnamed
 """ Plugin setup
 " enable nerdtree, plugin to navigate files using vim
 set NERDtree
-set ideajoin
 set surround
+
+""" IdeaVim options
+" Smart join for <C-J>
+set ideajoin
+" Map vim marks to IDEA global marks
+set ideamarks
 
 " Don't use Ex mode, use Q for formatting.
 map Q gq
@@ -57,6 +62,11 @@ map <leader>f <Action>(ReformatCode)
 " Tab navigation
 nnoremap <A-n> :tabnext<CR>
 nnoremap <A-p> :tabprev<CR>\
+" Line moving
+vnoremap J :m'>+<CR>gv=gv
+vnoremap K :m-2<CR>gv=gv
+" Paste without losing current buffer
+xnoremap <leader>p "_dP
 
 " Refactoring
 map <leader>rn <Action>(RenameElement)
@@ -99,7 +109,6 @@ map <leader><leader> <Action>(RecentFiles)
 map <leader>sl <Action>(RecentLocations)
 
 map <leader>sc <Action>(GotoClass)
-map <leader>fn <Action>(NewScratchFile)
 """ Jump between methods
 map [[ <Action>(MethodDown)
 map ]] <Action>(MethodUp)
@@ -109,3 +118,13 @@ map <leader>x :NERDTreeToggle<CR>
 nnoremap <leader>n :NERDTreeFocus<CR>
 map <leader>v <Action>(MoveTabRight)
 
+""" ide specific
+nmap ]e <Action>(GotoNextError)
+nmap [e <Action>(GotoPreviousError)
+
+"""" ide specific [tests]
+map <leader>tr <Action>(ContextRun)
+map <leader>tc gg<Action>(RunClass)<C-O>
+" Rerun previous job
+map <leader>te <Action>(Run)
+map <leader>rc <Action>(ChooseRunConfiguration)
