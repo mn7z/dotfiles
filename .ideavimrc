@@ -1,3 +1,4 @@
+
 " .ideavimrc is a configuration file for IdeaVim plugin. It uses
 " the same commands as the original .vimrc configuration.
 " You can find a list of commands here: https://jb.gg/h38q75
@@ -46,6 +47,7 @@ Plug 'machakann/vim-highlightedyank'
 Plug 'tpope/vim-commentary'
 Plug 'preservim/nerdtree'
 Plug 'tpope/vim-surround'
+
 "" The leader key
 let mapleader = " "
 
@@ -57,7 +59,7 @@ map <leader>f <Action>(ReformatCode)
 "map <leader>d <Action>(Debug)
 
 " Map \b to toggle the breakpoint on the current line
-"map \b <Action>(ToggleLineBreakpoint)
+map ,b <Action>(ToggleLineBreakpoint)
 
 " Tab navigation
 nnoremap <A-n> :tabnext<CR>
@@ -81,6 +83,7 @@ nmap <C-w><Up> <Action>(StretchSplitToTop)
 
 """ Navigation
 map <leader>wu <Action>(Unsplit)
+nnoremap <leader>h :action CallHierarchy<CR>
 
 """ LSP Code like.
 nmap <leader>gd <Action>(GotoDeclaration)
@@ -89,9 +92,9 @@ nmap <leader>gI <Action>(GotoImplementation)
 nmap <leader>gr <Action>(ShowUsages)
 nmap <leader>ds <Action>(FileStructurePopup)
 " custom LSP-like
-nmap <leader>gt <Action>(GotoTest)
-nmap <leader>gf <Action>(Forward)
-nmap <leader>gb <Action>(Back)
+nmap gt <Action>(GotoTest)
+nmap gf <Action>(Forward)
+nmap gb <Action>(Back)
 " a.k.a workspace symbols
 map <leader>ws <Action>(GotoSymbol)
 " Display options
@@ -109,9 +112,10 @@ map <leader><leader> <Action>(RecentFiles)
 map <leader>sl <Action>(RecentLocations)
 
 map <leader>sc <Action>(GotoClass)
+map <leader>sn <Action>(SelectIn)
 """ Jump between methods
-map [[ <Action>(MethodDown)
-map ]] <Action>(MethodUp)
+map [[ <Action>(MethodUp)
+map ]] <Action>(MethodDown)
 
 """ other
 map <leader>x :NERDTreeToggle<CR>
@@ -119,12 +123,24 @@ nnoremap <leader>n :NERDTreeFocus<CR>
 map <leader>v <Action>(MoveTabRight)
 
 """ ide specific
-nmap ]e <Action>(GotoNextError)
-nmap [e <Action>(GotoPreviousError)
+nnoremap ge :action GotoNextError<CR>
+nnoremap gE :action GotoPreviousError<CR>
 
 """" ide specific [tests]
 map <leader>tr <Action>(ContextRun)
 map <leader>tc gg<Action>(RunClass)<C-O>
+map <leader>tf :action RerunFailedTests<CR>
+
 " Rerun previous job
 map <leader>te <Action>(Run)
 map <leader>rc <Action>(ChooseRunConfiguration)
+" debug
+map <leader>td <Action>(ContextDebug)
+map <leader>tt <Action>(ActivateTerminalToolWindow)
+
+"""" ide specific for tabs
+map <leader>bp <Action>(PinActiveEditorTab)
+map <leader>bP <Action>(CloseAllUnpinnedEditors)
+nmap <S-h> <Action>(PreviousTab)
+nmap <S-l> <Action>(NextTab)
+
