@@ -1,0 +1,122 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+command -v op >/dev/null 2>&1 || {
+  echo "Error: 1Password CLI (op) is not installed." >&2
+  exit 1
+}
+command -v jq >/dev/null 2>&1 || {
+  echo "Error: jq is required to parse JSON output." >&2
+  exit 1
+}
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") <file-path> [options]
+
+Uploads a file to 1Password as a Document item, then opens it in the
+1Password app so you can create the share link yourself.
+
+Options:
+  --title TITLE        Item title (default: file's basename)
+  --vault VAULT        Vault to upload into (default: your account's default vault)
+  --account ACCOUNT    1Password account to use (e.g. my.1password.com)
+  -h, --help            Show this help
+EOF
+}
+
+FILE_PATH=""
+TITLE=""
+VAULT=""
+ACCOUNT=""
+
+while [ "$#" -gt 0 ]; do
+  case "$1" in
+  --title)
+    TITLE="${2:?--title requires a value}"
+    shift 2
+    ;;
+  --vault)
+    VAULT="${2:?--vault requires a value}"
+    shift 2
+    ;;
+  --account)
+    ACCOUNT="${2:?--account requires a value}"
+    shift 2
+    ;;
+  -h | --help)
+    usage
+    exit 0
+    ;;
+  --)
+    shift
+    [ -z "$FILE_PATH" ] && FILE_PATH="${1:-}" && shift
+    ;;
+  -*)
+    echo "Error: unknown option '$1'" >&2
+    usage
+    exit 1
+    ;;
+  *)
+    if [ -z "$FILE_PATH" ]; then
+      FILE_PATH="$1"
+    else
+      echo "Error: unexpected argument '$1'" >&2
+      exit 1
+    fi
+    shift
+    ;;
+  esac
+done
+
+if [ -z "$FILE_PATH" ]; then
+  usage
+  exit 1
+fi
+
+if [ ! -f "$FILE_PATH" ]; then
+  echo "Error: File '$FILE_PATH' does not exist." >&2
+  exit 1
+fi
+
+TITLE="${TITLE:-$(basename "$FILE_PATH")}"
+
+CREATE_CMD=("op" "document" "create" "$FILE_PATH" "--title" "$TITLE" "--format" "json")
+[ -n "$VAULT" ] && CREATE_CMD+=("--vault" "$VAULT")
+[ -n "$ACCOUNT" ] && CREATE_CMD+=("--account" "$ACCOUNT")
+
+echo "Uploading '$FILE_PATH' to 1Password..."
+ITEM_JSON=$("${CREATE_CMD[@]}")
+ITEM_ID=$(echo "$ITEM_JSON" | jq -r '.uuid')
+VAULT_ID=$(echo "$ITEM_JSON" | jq -r '.vaultUuid')
+
+if [ -z "$ITEM_ID" ] || [ "$ITEM_ID" = "null" ]; then
+  echo "Error: couldn't read the created item's UUID from op's output:" >&2
+  echo "$ITEM_JSON" >&2
+  exit 1
+fi
+
+ACCOUNT_ID_CMD=("op" "account" "get" "--format" "json")
+[ -n "$ACCOUNT" ] && ACCOUNT_ID_CMD+=("--account" "$ACCOUNT")
+ACCOUNT_JSON=$("${ACCOUNT_ID_CMD[@]}")
+ACCOUNT_UUID=$(echo "$ACCOUNT_JSON" | jq -r '.id')
+
+ACCOUNT_LIST_JSON=$(op account list --format json)
+ACCOUNT_HOST=$(echo "$ACCOUNT_LIST_JSON" | jq -r --arg id "$ACCOUNT_UUID" '.[] | select(.account_uuid == $id) | .url')
+
+OPEN_URL="https://start.1password.com/open/i?a=${ACCOUNT_UUID}&v=${VAULT_ID}&i=${ITEM_ID}&h=${ACCOUNT_HOST}"
+
+echo ""
+echo "Document uploaded."
+echo "Item ID:  $ITEM_ID"
+echo ""
+echo "The 1Password CLI can't create a share link for Document items --"
+echo "only the app can. Opening the item now; use \"...\" > Share to set"
+echo "expiration and view limit yourself."
+echo ""
+echo "Link to the item: $OPEN_URL"
+
+if command -v open >/dev/null 2>&1; then
+  open "$OPEN_URL" >/dev/null 2>&1 || true
+fi
